@@ -22,6 +22,42 @@ TEXT_TYPE = (str, unicode)
 LOCAL = os.path.dirname(os.path.abspath(__file__))[:-len('/helpers')]
 
 
+def clean_str(_somestr):
+    allowed_chars = 'abcdef01234567890'
+    cleaned_str = ''
+    for c in _somestr:
+        if c in allowed_chars:
+            cleaned_str += c
+    return cleaned_str
+
+
+def hash_cache(_origin, _hash):
+    cache_file = 'conversion_ids.keys'
+    if isinstance(_origin, tuple):
+        _origin = _origin[0]
+    try:
+        lines = open(cache_file, 'r').readlines()
+        cache_lines = {}
+        for line in lines:
+            try:
+                k = line.split(':')[0]
+                v = line.split(':')[1]
+                cache_lines.update({k: v})
+            except:
+                pass
+    except IOError:
+        cache_lines = {}
+    if _origin in cache_lines.keys():
+        # do something
+        return clean_str(cache_lines[_origin])
+    else:
+        # Do other thing!
+        cache_lines.update({_origin: _hash})
+        with open(cache_file, 'w') as cache:
+            for k, v in cache_lines.items():
+                cache.write('{}:{}\n'.format(k, clean_str(v)))
+
+
 def resolve_kwargs(_conf, _kwargs):
     """
     Función de renderizado de KWARGS
@@ -88,7 +124,8 @@ def anonymize_cols(_pddf=None, columns=None):
         try:
             _pddf[col] = _pddf[col].apply(lambda x: generate_unique_id(x))
             headers_count -= 1
-        except:
+        except Exception as e:
+            print (e)
             print ('Fallo el procesamiento de la columna:\"{}\", err: NOT-FOUND.'.format(col))
     if headers_count > 0:
         print ('No fue posible procesar todas las columnas')
@@ -135,7 +172,11 @@ def generate_unique_id(*args):
         a = random.random() * 100000000000000000L
     _uid = str(t) + ' ' + str(r) + ' ' + str(a) + ' ' + str(args)
     _uid = hashlib.md5(_uid).hexdigest()
-    return _uid
+    cached_hash = hash_cache(args, _uid)
+    if cached_hash:
+        return cached_hash
+    else:
+        return _uid
 
 
 def is_a_valid_conf(_conf=None):
