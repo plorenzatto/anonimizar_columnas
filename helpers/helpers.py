@@ -14,6 +14,7 @@ except:
           '\t sudo -H pip install pandas\n' \
           'o si se esta utilizando un VirtualEnv:\n' \
           '\t (py_venv) : pip install pandas.'
+    exit(1)
 
 SAMPLE_CONF = 'config.sample.json'
 SAMPLE_DATA = 'data.sample.csv'
