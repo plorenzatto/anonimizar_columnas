@@ -8,12 +8,19 @@ import hashlib
 try:
     lib = __import__('pandas')
     globals()['pd'] = lib
-except:
-    print 'Este script utiliza la libreria de Python Pandas.\n' \
-          'Por favor ejecuta:\n' \
-          '\t sudo -H pip install pandas\n' \
-          'o si se esta utilizando un VirtualEnv:\n' \
-          '\t (py_venv) : pip install pandas.'
+except ImportError:
+    pandas_import_error_msg = \
+        '''
+Este script utiliza la libreria de Python Pandas.
+Por favor ejecuta:
+   
+   $ sudo -H pip install pandas
+   
+o si se esta utilizando un VirtualEnv:
+   
+   (py_venv) $ pip install pandas.
+    '''
+    print (pandas_import_error_msg)
     exit(1)
 
 SAMPLE_CONF = 'config.sample.json'
