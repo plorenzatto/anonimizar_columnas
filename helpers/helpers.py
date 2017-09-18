@@ -107,7 +107,7 @@ def load_config(config_path=SAMPLE_CONF):
     try:
         return json.load(open(config_full_path, 'rb'))
     except ValueError:
-        print 'No es posible decodificar la configuracion: {}, no JSON parseable.'.format(config_path)
+        print ('No es posible decodificar la configuracion: {}, no JSON parseable.'.format(config_path))
         return None
     except IOError:
         print ('No es posible localizar la configuracion: {}.'.format(config_path))

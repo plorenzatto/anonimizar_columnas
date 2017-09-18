@@ -29,7 +29,7 @@ if __name__ == '__main__':
         if status:
             print ('Se genero correctamente \"{}\".'.format(status))
         else:
-            print 'Ocurrio un fallo a procesar el archivo: \"{}\".'.format(input_file)
+            print ('Ocurrio un fallo a procesar el archivo: \"{}\".'.format(input_file))
 
     else:
         print ('Configuracion invalida, no es posible continuar.')
