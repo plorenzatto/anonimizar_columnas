@@ -175,7 +175,7 @@ def generate_unique_id(*args):
     try:
         a = socket.gethostbyname(socket.gethostname())
     except Exception as e:
-        print e
+        print (e)
         a = random.random() * 100000000000000000
     _uid = str(t) + ' ' + str(r) + ' ' + str(a) + ' ' + str(args)
     _uid = hashlib.md5(_uid).hexdigest()
