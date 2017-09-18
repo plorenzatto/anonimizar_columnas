@@ -50,8 +50,8 @@ def hash_cache(_origin, _hash):
                 k = line.split(':')[0]
                 v = line.split(':')[1]
                 cache_lines.update({k: v})
-            except:
-                pass
+            except Exception as e:
+                print ('Err Msg: \"{}\".'.format(e))
     except IOError:
         cache_lines = {}
     if _origin in cache_lines.keys():
@@ -245,8 +245,9 @@ def write_csv(df, output_fn=None):
                 x = unicode(x.encode('utf-8', 'ignore'),
                             errors='ignore') if type(x) == unicode else unicode(str(x), errors='ignore')
                 df.set_value(idx, column, x)
-            except Exception:
-                print 'encoding error: {0} {1}'.format(idx, column)
+            except Exception as e:
+                print ('encoding error: {0} {1}'.format(idx, column))
+                print ('Err Msg: \"{}\".'.format(e))
                 df.set_value(idx, column, '')
                 continue
     try:
