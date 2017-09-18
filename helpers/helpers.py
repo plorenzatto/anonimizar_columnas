@@ -171,12 +171,12 @@ def generate_unique_id(*args):
 
     """
     t = long(time.time() * 1000)
-    r = long(random.random() * 100000000000000000L)
+    r = long(random.random() * 100000000000000000)
     try:
         a = socket.gethostbyname(socket.gethostname())
     except Exception as e:
         print e
-        a = random.random() * 100000000000000000L
+        a = random.random() * 100000000000000000
     _uid = str(t) + ' ' + str(r) + ' ' + str(a) + ' ' + str(args)
     _uid = hashlib.md5(_uid).hexdigest()
     cached_hash = hash_cache(args, _uid)
