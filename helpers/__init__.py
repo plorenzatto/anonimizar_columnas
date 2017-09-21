@@ -47,30 +47,6 @@ def hash_cache(_origin, _hash):
             for k, v in cache_lines.items():
                 cache.write('{}:{}\n'.format(k, clean_str(v)))
 
-
-def resolve_kwargs(_conf, _kwargs):
-    """
-    Función de renderizado de KWARGS
-
-    Args:
-        - defaults:
-        - _kwargs:
-    Return:
-        - Dict.
-    """
-    if not isinstance(_conf, dict) or not isinstance(_kwargs, dict):
-        raise TypeError('Argumentos no validos.')
-    _tmp_configs = {}
-    for k, v in _conf.items():
-        if k in _kwargs.keys() and isinstance(_kwargs.get(k), v.__class__):
-            if isinstance(v, dict):
-                _tmp_configs.update({k: resolve_kwargs(v, _kwargs.get(k))})
-            else:
-                _tmp_configs.update({k: _kwargs[k]})
-        else:
-            _tmp_configs.update({k: v})
-    return _tmp_configs
-
 def anonymize_cols(_pddf=None, columns=None):
     """
     Convierte en un Hash los valores del las columnas descriptas en columns
