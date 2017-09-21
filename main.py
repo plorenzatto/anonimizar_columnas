@@ -2,11 +2,10 @@
 # coding: utf-8
 
 import sys
-
-
-from helpers import load_config, is_a_valid_conf, load_input, anonymize_cols, write_csv
-
 import argparse
+
+from helpers import load_input, anonymize_cols, write_csv
+
 
 if __name__ == '__main__':
 

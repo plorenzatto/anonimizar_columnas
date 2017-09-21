@@ -1,10 +1,13 @@
 # coding: utf8
+
 import json
 import os
 import time
 import random
 import socket
 import hashlib
+import string
+
 import pandas as pd
 
 
@@ -14,13 +17,8 @@ TEXT_TYPE = (str, unicode)
 LOCAL = os.path.dirname(os.path.abspath(__file__))[:-len('/helpers')]
 
 
-def clean_str(_somestr):
-    allowed_chars = 'abcdef01234567890'
-    cleaned_str = ''
-    for c in _somestr:
-        if c in allowed_chars:
-            cleaned_str += c
-    return cleaned_str
+def clean_str(s):
+    return filter(lambda c: c in string.hexdigits, s)
 
 
 def hash_cache(_origin, _hash):
@@ -73,33 +71,6 @@ def resolve_kwargs(_conf, _kwargs):
             _tmp_configs.update({k: v})
     return _tmp_configs
 
-
-def load_config(config_path=SAMPLE_CONF):
-    """
-
-    :param config_path:
-    :return:
-    """
-    if not isinstance(config_path, TEXT_TYPE):
-        print('config_path debe ser una instancia de STR o UNICODE.')
-        return None
-    if config_path == SAMPLE_CONF:
-        # Load Sample
-        config_full_path = os.path.join(LOCAL, 'samples', config_path)
-    else:
-        # Load Custom Config
-        config_full_path = config_path
-    try:
-        return json.load(open(config_full_path, 'rb'))
-    except ValueError:
-        print('No es posible decodificar la configuracion: {}, no JSON parseable.'.format(
-            config_path))
-        return None
-    except IOError:
-        print('No es posible localizar la configuracion: {}.'.format(config_path))
-        return None
-
-
 def anonymize_cols(_pddf=None, columns=None):
     """
     Convierte en un Hash los valores del las columnas descriptas en columns
@@ -126,90 +97,25 @@ def anonymize_cols(_pddf=None, columns=None):
     return _pddf
 
 
-def load_input(_input_filename=None):
+def load_input(infn):
     """
     Carga y valida el input CSV.
 
-    :param _input_filename:
+    :param infn:
 
     Return:
         - Pandas.DataFrame: Carga exitosa.
-        - None: Fallo la cara del recurso.
     """
-    if _input_filename == SAMPLE_DATA:
-        # Load Sample
-        _input_filename = os.path.join(LOCAL, 'samples', _input_filename)
-    # Validar path de entrada:
-    if not os.path.exists(_input_filename):
-        print('No es posible localizar el archivo: {}.'.format(
-            os.path.basename(_input_filename)))
-    with open(_input_filename, 'rb') as tmp_f:
-        tmp_lines = tmp_f.readlines()
-    if len(tmp_lines) > 0:
-        csv_headers = tmp_lines[0].replace(
-            '\n', '').replace(' ', '').split(',')
-        try:
-            return pd.read_csv(_input_filename, skipinitialspace=True, usecols=csv_headers)
-        except:
-            pass
+    return pd.read_csv(infn)
 
 
-def generate_unique_id(*args):
-    """
-    source: StackOverFlow.
-
-    """
-    t = long(time.time() * 1000)
-    r = long(random.random() * 100000000000000000)
-    try:
-        a = socket.gethostbyname(socket.gethostname())
-    except Exception as e:
-        print(e)
-        a = random.random() * 100000000000000000
-    _uid = str(t) + ' ' + str(r) + ' ' + str(a) + ' ' + str(args)
-    _uid = hashlib.md5(_uid).hexdigest()
-    cached_hash = hash_cache(args, _uid)
+def generate_unique_id(data, salt=''):
+    uid = hashlib.md5(data + salt).hexdigest()
+    cached_hash = hash_cache(data + salt, uid)
     if cached_hash:
         return cached_hash
     else:
-        return _uid
-
-
-def is_a_valid_conf(_conf=None):
-    """
-    Valida una configuracion.
-
-    Args:
-        - _conf:
-            - description: configuracion provista que debe ser validada.
-            - type: Dict.
-
-    Return:
-        - bool:
-            - True: La config es valida.
-            - False: No es valida la conf.
-    """
-    if not isinstance(_conf, dict):
-        print('_conf debe ser una instancia de DICT.')
-        return False
-    required = \
-        {
-            'key': 'columns',
-            'type': list,
-            'content': TEXT_TYPE
-        }
-    # exists required.key?
-    if not required['key'] in _conf.keys():
-        print('{} es requerida!'.format(required['key']))
-        return False
-    if not isinstance(_conf[required['key']], required['type']):
-        print('{} debe contener {}'.format(required['key'], required['type']))
-        return False
-    if False in [isinstance(e, required['content']) for e in _conf['columns']]:
-        print('_conf[\'columns\'] debe ser una {} de {}'.format(required['type'],
-                                                                required['content']))
-        return False
-    return True
+        return uid
 
 
 def write_csv(df, output_fn=None):
