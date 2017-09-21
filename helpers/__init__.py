@@ -5,23 +5,8 @@ import time
 import random
 import socket
 import hashlib
-try:
-    lib = __import__('pandas')
-    globals()['pd'] = lib
-except ImportError:
-    pandas_import_error_msg = \
-        '''
-Este script utiliza la libreria de Python Pandas.
-Por favor ejecuta:
-   
-   $ sudo -H pip install pandas
-   
-o si se esta utilizando un VirtualEnv:
-   
-   (py_venv) $ pip install pandas.
-    '''
-    print (pandas_import_error_msg)
-    exit(1)
+import pandas as pd
+
 
 SAMPLE_CONF = 'config.sample.json'
 SAMPLE_DATA = 'data.sample.csv'
@@ -51,7 +36,7 @@ def hash_cache(_origin, _hash):
                 v = line.split(':')[1]
                 cache_lines.update({k: v})
             except Exception as e:
-                print ('Err Msg: \"{}\".'.format(e))
+                print('Err Msg: \"{}\".'.format(e))
     except IOError:
         cache_lines = {}
     if _origin in cache_lines.keys():
@@ -96,7 +81,7 @@ def load_config(config_path=SAMPLE_CONF):
     :return:
     """
     if not isinstance(config_path, TEXT_TYPE):
-        print ('config_path debe ser una instancia de STR o UNICODE.')
+        print('config_path debe ser una instancia de STR o UNICODE.')
         return None
     if config_path == SAMPLE_CONF:
         # Load Sample
@@ -107,10 +92,11 @@ def load_config(config_path=SAMPLE_CONF):
     try:
         return json.load(open(config_full_path, 'rb'))
     except ValueError:
-        print ('No es posible decodificar la configuracion: {}, no JSON parseable.'.format(config_path))
+        print('No es posible decodificar la configuracion: {}, no JSON parseable.'.format(
+            config_path))
         return None
     except IOError:
-        print ('No es posible localizar la configuracion: {}.'.format(config_path))
+        print('No es posible localizar la configuracion: {}.'.format(config_path))
         return None
 
 
@@ -121,10 +107,10 @@ def anonymize_cols(_pddf=None, columns=None):
     :return:
     """
     if not isinstance(_pddf, pd.DataFrame):
-        print ('_pddf debe ser una instancia de Pandas.DataFrame')
+        print('_pddf debe ser una instancia de Pandas.DataFrame')
         return None
     if not isinstance(columns, list):
-        print ('columns debe ser una instancia de LIST.')
+        print('columns debe ser una instancia de LIST.')
         return None
     headers_count = len(columns)
     for col in columns:
@@ -132,10 +118,11 @@ def anonymize_cols(_pddf=None, columns=None):
             _pddf[col] = _pddf[col].apply(lambda x: generate_unique_id(x))
             headers_count -= 1
         except Exception as e:
-            print (e)
-            print ('Fallo el procesamiento de la columna:\"{}\", err: NOT-FOUND.'.format(col))
+            print(e)
+            print(
+                'Fallo el procesamiento de la columna:\"{}\", err: NOT-FOUND.'.format(col))
     if headers_count > 0:
-        print ('No fue posible procesar todas las columnas')
+        print('No fue posible procesar todas las columnas')
     return _pddf
 
 
@@ -154,11 +141,13 @@ def load_input(_input_filename=None):
         _input_filename = os.path.join(LOCAL, 'samples', _input_filename)
     # Validar path de entrada:
     if not os.path.exists(_input_filename):
-        print ('No es posible localizar el archivo: {}.'.format(os.path.basename(_input_filename)))
+        print('No es posible localizar el archivo: {}.'.format(
+            os.path.basename(_input_filename)))
     with open(_input_filename, 'rb') as tmp_f:
         tmp_lines = tmp_f.readlines()
     if len(tmp_lines) > 0:
-        csv_headers = tmp_lines[0].replace('\n', '').replace(' ', '').split(',')
+        csv_headers = tmp_lines[0].replace(
+            '\n', '').replace(' ', '').split(',')
         try:
             return pd.read_csv(_input_filename, skipinitialspace=True, usecols=csv_headers)
         except:
@@ -175,7 +164,7 @@ def generate_unique_id(*args):
     try:
         a = socket.gethostbyname(socket.gethostname())
     except Exception as e:
-        print (e)
+        print(e)
         a = random.random() * 100000000000000000
     _uid = str(t) + ' ' + str(r) + ' ' + str(a) + ' ' + str(args)
     _uid = hashlib.md5(_uid).hexdigest()
@@ -201,7 +190,7 @@ def is_a_valid_conf(_conf=None):
             - False: No es valida la conf.
     """
     if not isinstance(_conf, dict):
-        print ('_conf debe ser una instancia de DICT.')
+        print('_conf debe ser una instancia de DICT.')
         return False
     required = \
         {
@@ -211,14 +200,14 @@ def is_a_valid_conf(_conf=None):
         }
     # exists required.key?
     if not required['key'] in _conf.keys():
-        print ('{} es requerida!'.format(required['key']))
+        print('{} es requerida!'.format(required['key']))
         return False
     if not isinstance(_conf[required['key']], required['type']):
-        print ('{} debe contener {}'.format(required['key'], required['type']))
+        print('{} debe contener {}'.format(required['key'], required['type']))
         return False
     if False in [isinstance(e, required['content']) for e in _conf['columns']]:
-        print ('_conf[\'columns\'] debe ser una {} de {}'.format(required['type'],
-                                                                 required['content']))
+        print('_conf[\'columns\'] debe ser una {} de {}'.format(required['type'],
+                                                                required['content']))
         return False
     return True
 
@@ -246,13 +235,13 @@ def write_csv(df, output_fn=None):
                             errors='ignore') if type(x) == unicode else unicode(str(x), errors='ignore')
                 df.set_value(idx, column, x)
             except Exception as e:
-                print ('encoding error: {0} {1}'.format(idx, column))
-                print ('Err Msg: \"{}\".'.format(e))
+                print('encoding error: {0} {1}'.format(idx, column))
+                print('Err Msg: \"{}\".'.format(e))
                 df.set_value(idx, column, '')
                 continue
     try:
         df.to_csv(output_fn, index=False)
         return output_fn
     except Exception as e:
-        print ('Ocurrio un fallo al intentar grabar el archivo {}'.format(output_fn))
-        print ('Err Msg: \"{}\".'.format(e))
+        print('Ocurrio un fallo al intentar grabar el archivo {}'.format(output_fn))
+        print('Err Msg: \"{}\".'.format(e))

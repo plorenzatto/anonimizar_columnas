@@ -11,7 +11,7 @@ import argparse
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Script para anonimizar clumnas en un CSV.')
-    parser.add_argument('-c', '--config' help='Configuracion de columnas', required=True)
+    parser.add_argument('-c', '--columns' help='Columns to anonymize', required=True, nargs='*')
     parser.add_argument('-i', '--input', help='CSV que se desea anonimizar', required=True)
     parser.add_argument('-o', '--output', help='Nombre del Archivo de salida', required=True)
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     # Load resource
     input_data = load_input(args.input)
-    anonymized_data = anonymize_cols(input_data, conf['columns'])
+    anonymized_data = anonymize_cols(input_data, args.columns)
     status = write_csv(anonymized_data, args.output)
 
     if status:
