@@ -13,13 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--columns' help='Columns to anonymize', required=True, nargs='*')
     parser.add_argument('-i', '--input', help='CSV que se desea anonimizar', required=True)
     parser.add_argument('-o', '--output', help='Nombre del Archivo de salida', required=True)
-
     args = parser.parse_args()
-
-    conf = load_config(args.conf)
-    if not is_a_valid_conf(args.conf):
-        sys.exit(1)
-        print ('Configuracion invalida, no es posible continuar.')
 
     # Load resource
     input_data = load_input(args.input)
